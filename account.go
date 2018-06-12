@@ -240,6 +240,13 @@ func (p *PayoutScheduleParams) AppendTo(body *form.Values, keyParts []string) {
 	}
 }
 
+// AccountVerification
+type AccountVerification struct {
+	DisabledReason IdentityVerificationDisabledReason `json:"disabled_reason"`
+	DueBy          int64                              `json:"due_by"`
+	FieldsNeeded   []string                           `json:"fields_needed"`
+}
+
 // Account is the resource representing your Stripe account.
 // For more details see https://stripe.com/docs/api/#account.
 type Account struct {
@@ -284,11 +291,7 @@ type Account struct {
 
 	Type AccountType `json:"type"`
 
-	Verification *struct {
-		DisabledReason IdentityVerificationDisabledReason `json:"disabled_reason"`
-		DueBy          int64                              `json:"due_by"`
-		FieldsNeeded   []string                           `json:"fields_needed"`
-	} `json:"verification"`
+	Verification *AccountVerification `json:"verification"`
 }
 
 // UnmarshalJSON handles deserialization of an account.
