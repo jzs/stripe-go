@@ -101,18 +101,19 @@ type RedirectParams struct {
 
 type SourceObjectParams struct {
 	Params              `form:"*"`
-	Amount              *int64             `form:"amount"`
-	Currency            *string            `form:"currency"`
-	Customer            *string            `form:"customer"`
-	Flow                *string            `form:"flow"`
-	OriginalSource      *string            `form:"original_source"`
-	Owner               *SourceOwnerParams `form:"owner"`
-	Redirect            *RedirectParams    `form:"redirect"`
-	StatementDescriptor *string            `form:"statement_descriptor"`
-	Token               *string            `form:"token"`
-	Type                *string            `form:"type"`
-	TypeData            map[string]string  `form:"-"`
-	Usage               *string            `form:"usage"`
+	Amount              *int64              `form:"amount"`
+	Currency            *string             `form:"currency"`
+	Customer            *string             `form:"customer"`
+	Flow                *string             `form:"flow"`
+	OriginalSource      *string             `form:"original_source"`
+	Owner               *SourceOwnerParams  `form:"owner"`
+	Redirect            *RedirectParams     `form:"redirect"`
+	StatementDescriptor *string             `form:"statement_descriptor"`
+	Token               *string             `form:"token"`
+	ThreeDSecure        *ThreeDSecureParams `form:"three_d_secure"`
+	Type                *string             `form:"type"`
+	TypeData            map[string]string   `form:"-"`
+	Usage               *string             `form:"usage"`
 }
 
 // SourceObjectDetachParams is the set of parameters that can be used when detaching
@@ -187,6 +188,7 @@ type Source struct {
 	Redirect            *RedirectFlow         `json:"redirect,omitempty"`
 	StatementDescriptor string                `json:"statement_descriptor"`
 	Status              SourceStatus          `json:"status"`
+	ThreeDSecure        *ThreeDSecure         `json:"three_d_secure"`
 	Type                string                `json:"type"`
 	TypeData            map[string]interface{}
 	Usage               SourceUsage `json:"usage"`
