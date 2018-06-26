@@ -18,12 +18,12 @@ import (
 // package, but should be used as appropriate for any new changes.
 
 const (
-	// MockMinimumVersion is the minimum acceptible version for stripe-mock.
+	// MockMinimumVersion is the minimum acceptable version for stripe-mock.
 	// It's here so that if the library depends on new endpoints or features
 	// added in a more recent version of stripe-mock, we can show people a
 	// better error message instead of the test suite crashing with a bunch of
 	// confusing 404 errors or the like.
-	MockMinimumVersion = "0.4.0"
+	MockMinimumVersion = "0.16.0"
 
 	// TestMerchantID is a token that can be used to represent a merchant ID in
 	// simple tests.
@@ -55,11 +55,17 @@ func init() {
 	}
 
 	stripe.Key = "sk_test_myTestKey"
-	stripe.SetBackend("api", &stripe.BackendConfiguration{
+
+	// Configure a backend for stripe-mock and set it for both the API and
+	// Uploads (unlike the real Stripe API, stripe-mock supports both these
+	// backends).
+	stripeMockBackend := &stripe.BackendConfiguration{
 		Type:       stripe.APIBackend,
 		URL:        "http://localhost:" + port + "/v1",
 		HTTPClient: &http.Client{},
-	})
+	}
+	stripe.SetBackend(stripe.APIBackend, stripeMockBackend)
+	stripe.SetBackend(stripe.UploadsBackend, stripeMockBackend)
 }
 
 // compareVersions compares two semantic version strings. We need this because

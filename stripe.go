@@ -26,10 +26,10 @@ const (
 )
 
 // apiversion is the currently supported API version
-const apiversion = "2017-05-25"
+const apiversion = "2018-02-06"
 
 // clientversion is the binding version
-const clientversion = "28.8.0"
+const clientversion = "31.0.0"
 
 // defaultHTTPTimeout is the default timeout on the http.Client used by the library.
 // This is chosen to be consistent with the other Stripe language libraries and
@@ -359,7 +359,11 @@ func (s *BackendConfiguration) ResponseToError(res *http.Response, resBody []byt
 	// so unmarshalling to a map for now and parsing the results manually
 	// but should investigate later
 	var errMap map[string]interface{}
-	json.Unmarshal(resBody, &errMap)
+
+	err := json.Unmarshal(resBody, &errMap)
+	if err != nil {
+		return err
+	}
 
 	e, ok := errMap["error"]
 	if !ok {

@@ -1,6 +1,11 @@
 before_install:
   - go get -u github.com/stretchr/testify/require
 
+  # Install code coverage / coveralls tooling
+  - go get -u golang.org/x/tools/cmd/cover
+  - go get -u github.com/modocache/gover
+  - go get -u github.com/mattn/goveralls
+
   # Unpack and start the Stripe API stub so that the test suite can talk to it
   - |
     if [ ! -d "stripe-mock/stripe-mock_${STRIPE_MOCK_VERSION}" ]; then
@@ -18,12 +23,13 @@ cache:
 
 env:
   global:
-    - STRIPE_MOCK_VERSION=0.4.0
+    - STRIPE_MOCK_VERSION=0.16.0
 
 go:
-  - 1.7
-  - 1.8
-  - 1.9
+  - "1.7"
+  - "1.8"
+  - "1.9"
+  - "1.10"
   - tip
 
 language: go
@@ -35,5 +41,12 @@ matrix:
 
 script:
   - make
+  - make coverage
+
+after_script:
+  # Merge all coverage reports located in subdirectories and put them under: gover.coverprofile
+  - gover
+  # Send code coverage report to coveralls.io
+  - goveralls -service=travis-ci -coverprofile=gover.coverprofile
 
 sudo: false

@@ -45,7 +45,7 @@ type Transfer struct {
 	Created        int64               `json:"created"`
 	Currency       Currency            `json:"currency"`
 	Dest           TransferDestination `json:"destination"`
-	DestPayment    string              `json:"destination_payment"`
+	DestPayment    *Charge             `json:"destination_payment"`
 	ID             string              `json:"id"`
 	Live           bool                `json:"livemode"`
 	Meta           map[string]string   `json:"metadata"`
@@ -90,7 +90,11 @@ func (d *TransferDestination) UnmarshalJSON(data []byte) error {
 	if err == nil {
 		*d = TransferDestination(dd)
 
-		json.Unmarshal(data, &d.Account)
+		err = json.Unmarshal(data, &d.Account)
+
+		if err != nil {
+			return err
+		}
 	} else {
 		// the id is surrounded by "\" characters, so strip them
 		d.ID = string(data[1 : len(data)-1])
