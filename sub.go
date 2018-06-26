@@ -98,6 +98,7 @@ type Sub struct {
 	ID           string            `json:"id"`
 	Items        *SubItemList      `json:"items"`
 	Meta         map[string]string `json:"metadata"`
+	OnBehalfOf   string            `form:"on_behalf_of"`
 	PeriodEnd    int64             `json:"current_period_end"`
 	PeriodStart  int64             `json:"current_period_start"`
 	Plan         *Plan             `json:"plan"`
