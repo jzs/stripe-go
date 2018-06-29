@@ -24,19 +24,17 @@ func New(params *stripe.EphemeralKeyParams) (*stripe.EphemeralKey, error) {
 // New POSTs new ephemeral keys.
 // For more details see https://stripe.com/docs/api#create_ephemeral_key.
 func (c Client) New(params *stripe.EphemeralKeyParams) (*stripe.EphemeralKey, error) {
-	if params.StripeVersion == "" {
+	if params.StripeVersion == nil || len(stripe.StringValue(params.StripeVersion)) == 0 {
 		return nil, fmt.Errorf("params.StripeVersion must be specified")
 	}
 
 	body := &form.Values{}
 	form.AppendTo(body, params)
 
-	if len(params.StripeVersion) > 0 {
-		if params.Headers == nil {
-			params.Headers = make(http.Header)
-		}
-		params.Headers.Add("Stripe-Version", params.StripeVersion)
+	if params.Headers == nil {
+		params.Headers = make(http.Header)
 	}
+	params.Headers.Add("Stripe-Version", stripe.StringValue(params.StripeVersion))
 
 	ephemeralKey := &stripe.EphemeralKey{}
 	err := c.B.Call("POST", "ephemeral_keys", c.Key, body, &params.Params, ephemeralKey)
@@ -63,7 +61,7 @@ func (c Client) Del(id string, params *stripe.EphemeralKeyParams) (*stripe.Ephem
 	}
 
 	ephemeralKey := &stripe.EphemeralKey{}
-	err := c.B.Call("DELETE", "/ephemeral_keys/"+id, c.Key, body, commonParams, ephemeralKey)
+	err := c.B.Call("DELETE", stripe.FormatURLPath("/ephemeral_keys/%s", id), c.Key, body, commonParams, ephemeralKey)
 
 	return ephemeralKey, err
 }

@@ -42,7 +42,7 @@ func (c Client) Get(id string, params *stripe.ApplePayDomainParams) (*stripe.App
 	}
 
 	domain := &stripe.ApplePayDomain{}
-	err := c.B.Call("GET", "/apple_pay/domains/"+id, c.Key, body, commonParams, domain)
+	err := c.B.Call("GET", stripe.FormatURLPath("/apple_pay/domains/%s", id), c.Key, body, commonParams, domain)
 
 	return domain, err
 }
@@ -63,7 +63,7 @@ func (c Client) Del(id string, params *stripe.ApplePayDomainParams) (*stripe.App
 	}
 
 	domain := &stripe.ApplePayDomain{}
-	err := c.B.Call("DELETE", "/apple_pay/domains/"+id, c.Key, body, commonParams, domain)
+	err := c.B.Call("DELETE", stripe.FormatURLPath("/apple_pay/domains/%s", id), c.Key, body, commonParams, domain)
 
 	return domain, err
 }
@@ -89,8 +89,8 @@ func (c Client) List(params *stripe.ApplePayDomainListParams) *Iter {
 		list := &stripe.ApplePayDomainList{}
 		err := c.B.Call("GET", "/apple_pay/domains", c.Key, b, p, list)
 
-		ret := make([]interface{}, len(list.Values))
-		for i, v := range list.Values {
+		ret := make([]interface{}, len(list.Data))
+		for i, v := range list.Data {
 			ret[i] = v
 		}
 

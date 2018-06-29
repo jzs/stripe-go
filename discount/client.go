@@ -2,8 +2,6 @@
 package discount
 
 import (
-	"fmt"
-
 	stripe "github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/form"
 )
@@ -31,14 +29,14 @@ func (c Client) Del(customerID string, params *stripe.DiscountParams) (*stripe.D
 	}
 
 	discount := &stripe.Discount{}
-	err := c.B.Call("DELETE", fmt.Sprintf("/customers/%v/discount", customerID), c.Key, body, commonParams, discount)
+	err := c.B.Call("DELETE", stripe.FormatURLPath("/customers/%s/discount", customerID), c.Key, body, commonParams, discount)
 
 	return discount, err
 }
 
 // DelSub removes a discount from a customer's subscription.
 // For more details see https://stripe.com/docs/api#delete_subscription_discount.
-func DelSub(subscriptionID string, params *stripe.DiscountParams) (*stripe.Discount, error) {
+func DelSubscription(subscriptionID string, params *stripe.DiscountParams) (*stripe.Discount, error) {
 	return getC().DelSub(subscriptionID, params)
 }
 
@@ -53,7 +51,7 @@ func (c Client) DelSub(subscriptionID string, params *stripe.DiscountParams) (*s
 	}
 
 	discount := &stripe.Discount{}
-	err := c.B.Call("DELETE", fmt.Sprintf("/subscriptions/%v/discount", subscriptionID), c.Key, body, commonParams, discount)
+	err := c.B.Call("DELETE", stripe.FormatURLPath("/subscriptions/%s/discount", subscriptionID), c.Key, body, commonParams, discount)
 
 	return discount, err
 }

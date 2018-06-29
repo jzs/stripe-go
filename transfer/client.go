@@ -6,13 +6,6 @@ import (
 	"github.com/stripe/stripe-go/form"
 )
 
-const (
-	SourceAlipay  stripe.TransferSourceType = "alipay_account"
-	SourceBank    stripe.TransferSourceType = "bank_account"
-	SourceBitcoin stripe.TransferSourceType = "bitcoin_receiver"
-	SourceCard    stripe.TransferSourceType = "card"
-)
-
 // Client is used to invoke /transfers APIs.
 type Client struct {
 	B   stripe.Backend
@@ -52,7 +45,7 @@ func (c Client) Get(id string, params *stripe.TransferParams) (*stripe.Transfer,
 	}
 
 	transfer := &stripe.Transfer{}
-	err := c.B.Call("GET", "/transfers/"+id, c.Key, body, commonParams, transfer)
+	err := c.B.Call("GET", stripe.FormatURLPath("/transfers/%s", id), c.Key, body, commonParams, transfer)
 
 	return transfer, err
 }
@@ -76,7 +69,7 @@ func (c Client) Update(id string, params *stripe.TransferParams) (*stripe.Transf
 	}
 
 	transfer := &stripe.Transfer{}
-	err := c.B.Call("POST", "/transfers/"+id, c.Key, body, commonParams, transfer)
+	err := c.B.Call("POST", stripe.FormatURLPath("/transfers/%s", id), c.Key, body, commonParams, transfer)
 
 	return transfer, err
 }
@@ -103,8 +96,8 @@ func (c Client) List(params *stripe.TransferListParams) *Iter {
 		list := &stripe.TransferList{}
 		err := c.B.Call("GET", "/transfers", c.Key, b, p, list)
 
-		ret := make([]interface{}, len(list.Values))
-		for i, v := range list.Values {
+		ret := make([]interface{}, len(list.Data))
+		for i, v := range list.Data {
 			ret[i] = v
 		}
 

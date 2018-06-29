@@ -21,8 +21,8 @@ func (c Client) New(params *stripe.AccountParams) (*stripe.Account, error) {
 
 	// Type is now required on creation and not allowed on update
 	// It can't be passed if you pass `from_recipient` though
-	if len(params.FromRecipient) == 0 {
-		body.Add("type", string(params.Type))
+	if params.FromRecipient != nil {
+		body.Add("type", stripe.StringValue(params.Type))
 	}
 
 	form.AppendTo(body, params)
@@ -61,7 +61,7 @@ func (c Client) GetByID(id string, params *stripe.AccountParams) (*stripe.Accoun
 	}
 
 	account := &stripe.Account{}
-	err := c.B.Call("GET", "/accounts/"+id, c.Key, body, commonParams, account)
+	err := c.B.Call("GET", stripe.FormatURLPath("/accounts/%s", id), c.Key, body, commonParams, account)
 
 	return account, err
 }
@@ -82,7 +82,7 @@ func (c Client) Update(id string, params *stripe.AccountParams) (*stripe.Account
 	}
 
 	acct := &stripe.Account{}
-	err := c.B.Call("POST", "/accounts/"+id, c.Key, body, commonParams, acct)
+	err := c.B.Call("POST", stripe.FormatURLPath("/accounts/%s", id), c.Key, body, commonParams, acct)
 
 	return acct, err
 }
@@ -103,7 +103,7 @@ func (c Client) Del(id string, params *stripe.AccountParams) (*stripe.Account, e
 	}
 
 	acct := &stripe.Account{}
-	err := c.B.Call("DELETE", "/accounts/"+id, c.Key, body, commonParams, acct)
+	err := c.B.Call("DELETE", stripe.FormatURLPath("/accounts/%s", id), c.Key, body, commonParams, acct)
 
 	return acct, err
 }
@@ -115,11 +115,11 @@ func Reject(id string, params *stripe.AccountRejectParams) (*stripe.Account, err
 
 func (c Client) Reject(id string, params *stripe.AccountRejectParams) (*stripe.Account, error) {
 	body := &form.Values{}
-	if len(params.Reason) > 0 {
-		body.Add("reason", params.Reason)
+	if params.Reason != nil {
+		body.Add("reason", stripe.StringValue(params.Reason))
 	}
 	acct := &stripe.Account{}
-	err := c.B.Call("POST", "/accounts/"+id+"/reject", c.Key, body, nil, acct)
+	err := c.B.Call("POST", stripe.FormatURLPath("/accounts/%s/reject", id), c.Key, body, nil, acct)
 
 	return acct, err
 }
@@ -146,8 +146,8 @@ func (c Client) List(params *stripe.AccountListParams) *Iter {
 		list := &stripe.AccountList{}
 		err := c.B.Call("GET", "/accounts", c.Key, b, p, list)
 
-		ret := make([]interface{}, len(list.Values))
-		for i, v := range list.Values {
+		ret := make([]interface{}, len(list.Data))
+		for i, v := range list.Data {
 			ret[i] = v
 		}
 

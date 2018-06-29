@@ -6,11 +6,6 @@ import (
 	"github.com/stripe/stripe-go/form"
 )
 
-const (
-	Individual stripe.RecipientType = "individual"
-	Corp       stripe.RecipientType = "corporation"
-)
-
 // Client is used to invoke /recipients APIs.
 type Client struct {
 	B   stripe.Backend
@@ -37,7 +32,7 @@ func (c Client) Get(id string, params *stripe.RecipientParams) (*stripe.Recipien
 	}
 
 	recipient := &stripe.Recipient{}
-	err := c.B.Call("GET", "/recipients/"+id, c.Key, body, commonParams, recipient)
+	err := c.B.Call("GET", stripe.FormatURLPath("/recipients/%s", id), c.Key, body, commonParams, recipient)
 
 	return recipient, err
 }
@@ -59,7 +54,7 @@ func (c Client) Update(id string, params *stripe.RecipientParams) (*stripe.Recip
 	}
 
 	recipient := &stripe.Recipient{}
-	err := c.B.Call("POST", "/recipients/"+id, c.Key, body, commonParams, recipient)
+	err := c.B.Call("POST", stripe.FormatURLPath("/recipients/%s", id), c.Key, body, commonParams, recipient)
 
 	return recipient, err
 }
@@ -81,7 +76,7 @@ func (c Client) Del(id string, params *stripe.RecipientParams) (*stripe.Recipien
 	}
 
 	recipient := &stripe.Recipient{}
-	err := c.B.Call("DELETE", "/recipients/"+id, c.Key, body, commonParams, recipient)
+	err := c.B.Call("DELETE", stripe.FormatURLPath("/recipients/%s", id), c.Key, body, commonParams, recipient)
 
 	return recipient, err
 }
@@ -108,8 +103,8 @@ func (c Client) List(params *stripe.RecipientListParams) *Iter {
 		list := &stripe.RecipientList{}
 		err := c.B.Call("GET", "/recipients", c.Key, b, p, list)
 
-		ret := make([]interface{}, len(list.Values))
-		for i, v := range list.Values {
+		ret := make([]interface{}, len(list.Data))
+		for i, v := range list.Data {
 			ret[i] = v
 		}
 

@@ -2,37 +2,8 @@
 package payout
 
 import (
-	"fmt"
-
 	stripe "github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/form"
-)
-
-const (
-	Canceled stripe.PayoutStatus = "canceled"
-	Failed   stripe.PayoutStatus = "failed"
-	Paid     stripe.PayoutStatus = "paid"
-	Pending  stripe.PayoutStatus = "pending"
-	Transit  stripe.PayoutStatus = "in_transit"
-
-	Bank stripe.PayoutType = "bank_account"
-	Card stripe.PayoutType = "card"
-
-	SourceAlipay  stripe.PayoutSourceType = "alipay_account"
-	SourceBank    stripe.PayoutSourceType = "bank_account"
-	SourceBitcoin stripe.PayoutSourceType = "bitcoin_receiver"
-	SourceCard    stripe.PayoutSourceType = "card"
-
-	AccountClosed        stripe.PayoutFailureCode = "account_closed"
-	AccountFrozen        stripe.PayoutFailureCode = "account_frozen"
-	BankAccountRestrict  stripe.PayoutFailureCode = "bank_account_restricted"
-	BankOwnerChanged     stripe.PayoutFailureCode = "bank_ownership_changed"
-	CouldNotProcess      stripe.PayoutFailureCode = "could_not_process"
-	DebitNotAuth         stripe.PayoutFailureCode = "debit_not_authorized"
-	InsufficientFunds    stripe.PayoutFailureCode = "insufficient_funds"
-	InvalidAccountNumber stripe.PayoutFailureCode = "invalid_account_number"
-	InvalidCurrency      stripe.PayoutFailureCode = "invalid_currency"
-	NoAccount            stripe.PayoutFailureCode = "no_account"
 )
 
 // Client is used to invoke /payouts APIs.
@@ -74,7 +45,7 @@ func (c Client) Get(id string, params *stripe.PayoutParams) (*stripe.Payout, err
 	}
 
 	payout := &stripe.Payout{}
-	err := c.B.Call("GET", "/payouts/"+id, c.Key, body, commonParams, payout)
+	err := c.B.Call("GET", stripe.FormatURLPath("/payouts/%s", id), c.Key, body, commonParams, payout)
 
 	return payout, err
 }
@@ -96,7 +67,7 @@ func (c Client) Update(id string, params *stripe.PayoutParams) (*stripe.Payout, 
 	}
 
 	payout := &stripe.Payout{}
-	err := c.B.Call("POST", "/payouts/"+id, c.Key, body, commonParams, payout)
+	err := c.B.Call("POST", stripe.FormatURLPath("/payouts/%s", id), c.Key, body, commonParams, payout)
 
 	return payout, err
 }
@@ -118,7 +89,7 @@ func (c Client) Cancel(id string, params *stripe.PayoutParams) (*stripe.Payout, 
 	}
 
 	payout := &stripe.Payout{}
-	err := c.B.Call("POST", fmt.Sprintf("/payouts/%v/cancel", id), c.Key, body, commonParams, payout)
+	err := c.B.Call("POST", stripe.FormatURLPath("/payouts/%s/cancel", id), c.Key, body, commonParams, payout)
 
 	return payout, err
 }
@@ -145,8 +116,8 @@ func (c Client) List(params *stripe.PayoutListParams) *Iter {
 		list := &stripe.PayoutList{}
 		err := c.B.Call("GET", "/payouts", c.Key, b, p, list)
 
-		ret := make([]interface{}, len(list.Values))
-		for i, v := range list.Values {
+		ret := make([]interface{}, len(list.Data))
+		for i, v := range list.Data {
 			ret[i] = v
 		}
 

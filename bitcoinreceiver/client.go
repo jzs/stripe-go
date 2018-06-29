@@ -5,8 +5,6 @@
 package bitcoinreceiver
 
 import (
-	"fmt"
-
 	stripe "github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/form"
 )
@@ -47,7 +45,7 @@ func (c Client) Get(id string, params *stripe.BitcoinReceiverParams) (*stripe.Bi
 	}
 
 	bitcoinReceiver := &stripe.BitcoinReceiver{}
-	err := c.B.Call("GET", "/bitcoin/receivers/"+id, c.Key, nil, commonParams, bitcoinReceiver)
+	err := c.B.Call("GET", stripe.FormatURLPath("/bitcoin/receivers/%s", id), c.Key, nil, commonParams, bitcoinReceiver)
 
 	return bitcoinReceiver, err
 }
@@ -63,7 +61,7 @@ func (c Client) Update(id string, params *stripe.BitcoinReceiverUpdateParams) (*
 	form.AppendTo(body, params)
 
 	receiver := &stripe.BitcoinReceiver{}
-	err := c.B.Call("POST", fmt.Sprintf("/bitcoin/receivers/%v", id), c.Key, body, &params.Params, receiver)
+	err := c.B.Call("POST", stripe.FormatURLPath("/bitcoin/receivers/%s", id), c.Key, body, &params.Params, receiver)
 
 	return receiver, err
 }
@@ -90,8 +88,8 @@ func (c Client) List(params *stripe.BitcoinReceiverListParams) *Iter {
 		list := &stripe.BitcoinReceiverList{}
 		err := c.B.Call("GET", "/bitcoin/receivers", c.Key, b, p, list)
 
-		ret := make([]interface{}, len(list.Values))
-		for i, v := range list.Values {
+		ret := make([]interface{}, len(list.Data))
+		for i, v := range list.Data {
 			ret[i] = v
 		}
 

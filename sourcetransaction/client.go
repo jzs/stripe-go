@@ -3,7 +3,6 @@ package sourcetransaction
 
 import (
 	"errors"
-	"fmt"
 
 	stripe "github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/form"
@@ -34,14 +33,14 @@ func (c Client) List(params *stripe.SourceTransactionListParams) *Iter {
 		list := &stripe.SourceTransactionList{}
 		var err error
 
-		if params != nil && len(params.Source) > 0 {
-			err = c.B.Call("GET", fmt.Sprintf("/sources/%v/source_transactions", params.Source), c.Key, b, p, list)
+		if params != nil && params.Source != nil {
+			err = c.B.Call("GET", stripe.FormatURLPath("/sources/%s/source_transactions", stripe.StringValue(params.Source)), c.Key, b, p, list)
 		} else {
 			err = errors.New("Invalid source transaction params: Source needs to be set")
 		}
 
-		ret := make([]interface{}, len(list.Values))
-		for i, v := range list.Values {
+		ret := make([]interface{}, len(list.Data))
+		for i, v := range list.Data {
 			ret[i] = v
 		}
 

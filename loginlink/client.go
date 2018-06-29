@@ -3,7 +3,6 @@ package loginlink
 
 import (
 	"errors"
-	"fmt"
 
 	stripe "github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/form"
@@ -27,8 +26,8 @@ func (c Client) New(params *stripe.LoginLinkParams) (*stripe.LoginLink, error) {
 	loginLink := &stripe.LoginLink{}
 	var err error
 
-	if len(params.Account) > 0 {
-		err = c.B.Call("POST", fmt.Sprintf("/accounts/%v/login_links", params.Account), c.Key, body, nil, loginLink)
+	if params.Account != nil {
+		err = c.B.Call("POST", stripe.FormatURLPath("/accounts/%s/login_links", stripe.StringValue(params.Account)), c.Key, body, nil, loginLink)
 	} else {
 		err = errors.New("Invalid login link params: Account must be set")
 	}

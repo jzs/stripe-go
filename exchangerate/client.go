@@ -19,7 +19,7 @@ func Get(currency string) (*stripe.ExchangeRate, error) {
 
 func (c Client) Get(currency string) (*stripe.ExchangeRate, error) {
 	exchangeRate := &stripe.ExchangeRate{}
-	err := c.B.Call("GET", "/exchange_rates/"+currency, c.Key, nil, nil, exchangeRate)
+	err := c.B.Call("GET", stripe.FormatURLPath("/exchange_rates/%s", currency), c.Key, nil, nil, exchangeRate)
 
 	return exchangeRate, err
 }
@@ -45,8 +45,8 @@ func (c Client) List(params *stripe.ExchangeRateListParams) *Iter {
 		list := &stripe.ExchangeRateList{}
 		err := c.B.Call("GET", "/exchange_rates", c.Key, b, p, list)
 
-		ret := make([]interface{}, len(list.Values))
-		for i, v := range list.Values {
+		ret := make([]interface{}, len(list.Data))
+		for i, v := range list.Data {
 			ret[i] = v
 		}
 

@@ -44,7 +44,7 @@ func (c Client) Get(id string, params *stripe.TopupParams) (*stripe.Topup, error
 	}
 
 	topup := &stripe.Topup{}
-	err := c.B.Call("GET", "/topups/"+id, c.Key, body, commonParams, topup)
+	err := c.B.Call("GET", stripe.FormatURLPath("/topups/%s", id), c.Key, body, commonParams, topup)
 
 	return topup, err
 }
@@ -66,7 +66,7 @@ func (c Client) Update(id string, params *stripe.TopupParams) (*stripe.Topup, er
 	}
 
 	topup := &stripe.Topup{}
-	err := c.B.Call("POST", "/topups/"+id, c.Key, body, commonParams, topup)
+	err := c.B.Call("POST", stripe.FormatURLPath("/topups/%s", id), c.Key, body, commonParams, topup)
 
 	return topup, err
 }
@@ -93,8 +93,8 @@ func (c Client) List(params *stripe.TopupListParams) *Iter {
 		list := &stripe.TopupList{}
 		err := c.B.Call("GET", "/topups", c.Key, b, p, list)
 
-		ret := make([]interface{}, len(list.Values))
-		for i, v := range list.Values {
+		ret := make([]interface{}, len(list.Data))
+		for i, v := range list.Data {
 			ret[i] = v
 		}
 

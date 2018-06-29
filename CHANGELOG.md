@@ -1,5 +1,30 @@
 # Changelog
 
+## 33.0.0 - 2018-06-11
+* [#583](https://github.com/stripe/stripe-go/pull/583) Add new account constants, rename one, and fix `DueBy` (this is quite a small breaking change)
+
+## 32.4.1 - 2018-06-11
+* [#582](https://github.com/stripe/stripe-go/pull/582) Fix unmarshaling of `LegalEntity` (specifically when we have `legal_entity[additional_owners][][verification]`) so that it comes out as a struct
+
+## 32.4.0 - 2018-06-07
+* [#577](https://github.com/stripe/stripe-go/pull/577) Add `DocumentBack` to account legal entity identity verification parameters and response
+
+## 32.3.0 - 2018-06-07
+* [#576](https://github.com/stripe/stripe-go/pull/576) Fix plan transform usage to use `BucketSize` instead of `DivideBy`; note this is technically a breaking API change, but we've released it as a minor because the previous manifestation didn't work
+
+## 32.2.0 - 2018-06-06
+* [#571](https://github.com/stripe/stripe-go/pull/571) Add `HostedInvoiceURL` and `InvoicePDF` to `Invoice`
+* [#573](https://github.com/stripe/stripe-go/pull/573) Add `FormatURLPath` helper to allow safer URL path building
+
+## 32.1.0 - 2018-06-06
+* [#572](https://github.com/stripe/stripe-go/pull/572) Add `Active` to plan parameters and response
+
+## 32.0.1 - 2018-06-06
+* [#569](https://github.com/stripe/stripe-go/pull/569) Fix unmarshaling of expanded transaction sources in balance transactions
+
+## 32.0.0 - 2018-06-06
+* [#544](https://github.com/stripe/stripe-go/pull/544) **MAJOR** changes that make all fields on parameter structs pointers, and rename many fields on parameter and response structs to be consistent with naming in the REST API; we've written [a migration guide with complete details](https://github.com/stripe/stripe-go/blob/master/v32_migration_guide.md) to help with the upgrade
+
 ## 31.0.0 - 2018-06-06
 * [#566](https://github.com/stripe/stripe-go/pull/566) Support `DisputeParams` in `dispute.Close`
 

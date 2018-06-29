@@ -6,12 +6,6 @@ import (
 	"github.com/stripe/stripe-go/form"
 )
 
-const (
-	Card stripe.TokenType = "card"
-	Bank stripe.TokenType = "bank_account"
-	PII  stripe.TokenType = "pii"
-)
-
 // Client is used to invoke /tokens APIs.
 type Client struct {
 	B   stripe.Backend
@@ -51,7 +45,7 @@ func (c Client) Get(id string, params *stripe.TokenParams) (*stripe.Token, error
 	}
 
 	token := &stripe.Token{}
-	err := c.B.Call("GET", "/tokens/"+id, c.Key, body, commonParams, token)
+	err := c.B.Call("GET", stripe.FormatURLPath("/tokens/%s", id), c.Key, body, commonParams, token)
 
 	return token, err
 }

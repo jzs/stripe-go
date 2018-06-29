@@ -68,6 +68,15 @@ func TestContext_Cancel(t *testing.T) {
 	assert.Regexp(t, regexp.MustCompile(`(request canceled|context canceled\z)`), err.Error())
 }
 
+func TestFormatURLPath(t *testing.T) {
+	assert.Equal(t, "/resources/1/subresources/2",
+		stripe.FormatURLPath("/resources/%s/subresources/%s", "1", "2"))
+
+	// Tests that each parameter is escaped for use in URLs
+	assert.Equal(t, "/resources/%25",
+		stripe.FormatURLPath("/resources/%s", "%"))
+}
+
 // TestMultipleAPICalls will fail the test run if a race condition is thrown while running multiple NewRequest calls.
 func TestMultipleAPICalls(t *testing.T) {
 	wg := &sync.WaitGroup{}
@@ -89,7 +98,7 @@ func TestMultipleAPICalls(t *testing.T) {
 
 func TestIdempotencyKey(t *testing.T) {
 	c := &stripe.BackendConfiguration{URL: stripe.APIURL}
-	p := &stripe.Params{IdempotencyKey: "idempotency-key"}
+	p := &stripe.Params{IdempotencyKey: stripe.String("idempotency-key")}
 
 	req, err := c.NewRequest("", "", "", "", nil, p)
 	assert.NoError(t, err)
@@ -99,18 +108,10 @@ func TestIdempotencyKey(t *testing.T) {
 
 func TestStripeAccount(t *testing.T) {
 	c := &stripe.BackendConfiguration{URL: stripe.APIURL}
-	p := &stripe.Params{StripeAccount: TestMerchantID}
+	p := &stripe.Params{}
+	p.SetStripeAccount(TestMerchantID)
 
 	req, err := c.NewRequest("", "", "", "", nil, p)
-	assert.NoError(t, err)
-
-	assert.Equal(t, TestMerchantID, req.Header.Get("Stripe-Account"))
-
-	// Also test the deprecated Account field for now as well. This should be
-	// identical to the exercise above.
-	p = &stripe.Params{Account: TestMerchantID}
-
-	req, err = c.NewRequest("", "", "", "", nil, p)
 	assert.NoError(t, err)
 
 	assert.Equal(t, TestMerchantID, req.Header.Get("Stripe-Account"))
@@ -219,7 +220,7 @@ func TestResponseToError(t *testing.T) {
 	// An error that contains expected fields which we're going to serialize to
 	// JSON and inject into our conversion function.
 	expectedErr := &stripe.Error{
-		Code:  stripe.Missing,
+		Code:  stripe.ErrorCodeMissing,
 		Msg:   "That card was declined",
 		Param: "expiry_date",
 		Type:  stripe.ErrorTypeCard,

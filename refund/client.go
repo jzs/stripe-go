@@ -6,12 +6,6 @@ import (
 	"github.com/stripe/stripe-go/form"
 )
 
-const (
-	RefundFraudulent          stripe.RefundReason = "fraudulent"
-	RefundDuplicate           stripe.RefundReason = "duplicate"
-	RefundRequestedByCustomer stripe.RefundReason = "requested_by_customer"
-)
-
 // Client is used to invoke /refunds APIs.
 type Client struct {
 	B   stripe.Backend
@@ -51,7 +45,7 @@ func (c Client) Get(id string, params *stripe.RefundParams) (*stripe.Refund, err
 	}
 
 	refund := &stripe.Refund{}
-	err := c.B.Call("GET", "/refunds/"+id, c.Key, body, commonParams, refund)
+	err := c.B.Call("GET", stripe.FormatURLPath("/refunds/%s", id), c.Key, body, commonParams, refund)
 
 	return refund, err
 }
@@ -67,7 +61,7 @@ func (c Client) Update(id string, params *stripe.RefundParams) (*stripe.Refund, 
 	form.AppendTo(body, params)
 
 	refund := &stripe.Refund{}
-	err := c.B.Call("POST", "/refunds/"+id, c.Key, body, &params.Params, refund)
+	err := c.B.Call("POST", stripe.FormatURLPath("/refunds/%s", id), c.Key, body, &params.Params, refund)
 
 	return refund, err
 }
@@ -91,8 +85,8 @@ func (c Client) List(params *stripe.RefundListParams) *Iter {
 		list := &stripe.RefundList{}
 		err := c.B.Call("GET", "/refunds", c.Key, b, p, list)
 
-		ret := make([]interface{}, len(list.Values))
-		for i, v := range list.Values {
+		ret := make([]interface{}, len(list.Data))
+		for i, v := range list.Data {
 			ret[i] = v
 		}
 

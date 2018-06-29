@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"runtime"
@@ -29,7 +30,7 @@ const (
 const apiversion = "2018-02-06"
 
 // clientversion is the binding version
-const clientversion = "31.0.0"
+const clientversion = "33.0.0"
 
 // defaultHTTPTimeout is the default timeout on the http.Client used by the library.
 // This is chosen to be consistent with the other Stripe language libraries and
@@ -277,22 +278,18 @@ func (s *BackendConfiguration) NewRequest(method, path, key, contentType string,
 			req = req.WithContext(params.Context)
 		}
 
-		if idempotency := strings.TrimSpace(params.IdempotencyKey); idempotency != "" {
-			if len(idempotency) > 255 {
-				return nil, errors.New("Cannot use an IdempotencyKey longer than 255 characters long.")
+		if params.IdempotencyKey != nil {
+			idempotencyKey := strings.TrimSpace(*params.IdempotencyKey)
+
+			if len(idempotencyKey) > 255 {
+				return nil, errors.New("Cannot use an idempotency key longer than 255 characters.")
 			}
 
-			req.Header.Add("Idempotency-Key", idempotency)
+			req.Header.Add("Idempotency-Key", idempotencyKey)
 		}
 
-		// Support the value of the old Account field for now.
-		if account := strings.TrimSpace(params.Account); account != "" {
-			req.Header.Add("Stripe-Account", account)
-		}
-
-		// But prefer StripeAccount.
-		if stripeAccount := strings.TrimSpace(params.StripeAccount); stripeAccount != "" {
-			req.Header.Add("Stripe-Account", stripeAccount)
+		if params.StripeAccount != nil {
+			req.Header.Add("Stripe-Account", strings.TrimSpace(*params.StripeAccount))
 		}
 
 		for k, v := range params.Headers {
@@ -430,6 +427,27 @@ func (s *BackendConfiguration) ResponseToError(res *http.Response, resBody []byt
 	return stripeErr
 }
 
+// FormatURLPath takes a format string (of the kind used in the fmt package)
+// representing a URL path with a number of parameters that belong in the path
+// and returns a formatted string.
+//
+// This is mostly a pass through to Sprintf. It exists to make it
+// it impossible to accidentally provide a parameter type that would be
+// formatted improperly; for example, a string pointer instead of a string.
+//
+// It also URL-escapes every given parameter. This usually isn't necessary for
+// a standard Stripe ID, but is needed in places where user-provided IDs are
+// allowed, like in coupons or plans. We apply it broadly for extra safety.
+func FormatURLPath(format string, params ...string) string {
+	// Convert parameters to interface{} and URL-escape them
+	untypedParams := make([]interface{}, len(params))
+	for i, param := range params {
+		untypedParams[i] = interface{}(url.QueryEscape(param))
+	}
+
+	return fmt.Sprintf(format, untypedParams...)
+}
+
 // SetAppInfo sets app information. See AppInfo.
 func SetAppInfo(info *AppInfo) {
 	if info != nil && info.Name == "" {
@@ -484,4 +502,60 @@ func initUserAgent() {
 		panic(err)
 	}
 	encodedStripeUserAgent = string(marshaled)
+}
+
+// Bool returns a pointer to the bool value passed in.
+func Bool(v bool) *bool {
+	return &v
+}
+
+// BoolValue returns the value of the bool pointer passed in or
+// false if the pointer is nil.
+func BoolValue(v *bool) bool {
+	if v != nil {
+		return *v
+	}
+	return false
+}
+
+// Float64 returns a pointer to the float64 value passed in.
+func Float64(v float64) *float64 {
+	return &v
+}
+
+// Float64Value returns the value of the float64 pointer passed in or
+// 0 if the pointer is nil.
+func Float64Value(v *float64) float64 {
+	if v != nil {
+		return *v
+	}
+	return 0
+}
+
+// Int64 returns a pointer to the int64 value passed in.
+func Int64(v int64) *int64 {
+	return &v
+}
+
+// Int64Value returns the value of the int64 pointer passed in or
+// 0 if the pointer is nil.
+func Int64Value(v *int64) int64 {
+	if v != nil {
+		return *v
+	}
+	return 0
+}
+
+// String returns a pointer to the string value passed in.
+func String(v string) *string {
+	return &v
+}
+
+// StringValue returns the value of the string pointer passed in or
+// "" if the pointer is nil.
+func StringValue(v *string) string {
+	if v != nil {
+		return *v
+	}
+	return ""
 }

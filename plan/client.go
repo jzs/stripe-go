@@ -2,18 +2,8 @@
 package plan
 
 import (
-	"fmt"
-	"net/url"
-
 	stripe "github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/form"
-)
-
-const (
-	Day   stripe.PlanInterval = "day"
-	Week  stripe.PlanInterval = "week"
-	Month stripe.PlanInterval = "month"
-	Year  stripe.PlanInterval = "year"
 )
 
 // Client is used to invoke /plans APIs.
@@ -55,7 +45,7 @@ func (c Client) Get(id string, params *stripe.PlanParams) (*stripe.Plan, error) 
 	}
 
 	plan := &stripe.Plan{}
-	err := c.B.Call("GET", "/plans/"+url.QueryEscape(id), c.Key, body, commonParams, plan)
+	err := c.B.Call("GET", stripe.FormatURLPath("/plans/%s", id), c.Key, body, commonParams, plan)
 
 	return plan, err
 }
@@ -77,7 +67,7 @@ func (c Client) Update(id string, params *stripe.PlanParams) (*stripe.Plan, erro
 	}
 
 	plan := &stripe.Plan{}
-	err := c.B.Call("POST", "/plans/"+url.QueryEscape(id), c.Key, body, commonParams, plan)
+	err := c.B.Call("POST", stripe.FormatURLPath("/plans/%s", id), c.Key, body, commonParams, plan)
 
 	return plan, err
 }
@@ -99,8 +89,7 @@ func (c Client) Del(id string, params *stripe.PlanParams) (*stripe.Plan, error) 
 	}
 
 	plan := &stripe.Plan{}
-	qid := url.QueryEscape(id) //Added query escape per commit 9821176
-	err := c.B.Call("DELETE", fmt.Sprintf("/plans/%v", qid), c.Key, body, commonParams, plan)
+	err := c.B.Call("DELETE", stripe.FormatURLPath("/plans/%s", id), c.Key, body, commonParams, plan)
 	return plan, err
 }
 
@@ -126,8 +115,8 @@ func (c Client) List(params *stripe.PlanListParams) *Iter {
 		list := &stripe.PlanList{}
 		err := c.B.Call("GET", "/plans", c.Key, b, p, list)
 
-		ret := make([]interface{}, len(list.Values))
-		for i, v := range list.Values {
+		ret := make([]interface{}, len(list.Data))
+		for i, v := range list.Data {
 			ret[i] = v
 		}
 
